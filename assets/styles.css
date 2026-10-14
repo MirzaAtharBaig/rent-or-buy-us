@@ -114,3 +114,6 @@ footer{border-top:1px solid var(--rule);padding:20px 0 40px;color:var(--muted);f
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .stamp{font-size:.8rem;color:var(--muted);margin:6px 0 0}
 .loading{padding:40px 0;color:var(--muted)}
+.cite-box{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;max-width:74ch}
+.cite-box p{margin:0 0 4px;font-size:.95rem}
+.cite-box a{font-size:.9rem;align-self:center}

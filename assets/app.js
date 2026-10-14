@@ -258,6 +258,13 @@ function wire() {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (last) render(); });
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (last) drawWaffle(last.o, colors()); }, 150); });
   run();
+  document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+  const text = $(b.dataset.copy).textContent.trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    const old = b.textContent; b.textContent = 'Copied'; setTimeout(() => (b.textContent = old), 1500);
+  } catch { b.textContent = 'Copy failed — select the text manually'; }
+}));
 }
 
 async function init() {
