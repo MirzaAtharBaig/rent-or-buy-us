@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build data (online)",
+      "type": "shell",
+      "command": "${config:python.defaultInterpreterPath} -m pipeline.build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build data (offline, from cache)",
+      "type": "shell",
+      "command": "${config:python.defaultInterpreterPath} -m pipeline.build --offline",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: all",
+      "type": "shell",
+      "command": "${config:python.defaultInterpreterPath} -m pytest -q && npm test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Serve site on :8000",
+      "type": "shell",
+      "command": "${config:python.defaultInterpreterPath} -m http.server 8000",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

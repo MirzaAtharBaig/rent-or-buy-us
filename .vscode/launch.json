@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: build data",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pipeline.build",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Debug: build data (offline)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pipeline.build",
+      "args": ["--offline"],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

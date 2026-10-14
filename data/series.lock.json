@@ -1,0 +1,10 @@
+{
+  "_note": "Written by pipeline/build.py. Seed contains only the ids verified by hand; the first build fills in the rest.",
+  "national": {"series": "USSTHPI", "title": "All-Transactions House Price Index for the United States"},
+  "dallas": {"series": "ATNHPIUS19124Q", "title": "All-Transactions House Price Index for Dallas-Plano-Irving, TX (MSAD)"},
+  "detroit": {"series": "ATNHPIUS19804Q", "title": "All-Transactions House Price Index for Detroit-Dearborn-Livonia, MI (MSAD)"},
+  "kansas-city": {"series": "ATNHPIUS28140Q", "title": "All-Transactions House Price Index for Kansas City, MO-KS (MSA)"},
+  "lincoln": {"series": "ATNHPIUS30700Q", "title": "All-Transactions House Price Index for Lincoln, NE (MSA)"},
+  "omaha": {"series": "ATNHPIUS36540Q", "title": "All-Transactions House Price Index for Omaha-Council Bluffs, NE-IA (MSA)"},
+  "seattle": {"series": "ATNHPIUS42644Q", "title": "All-Transactions House Price Index for Seattle-Bellevue-Kent, WA (MSAD)"}
+}

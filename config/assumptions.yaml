@@ -1,0 +1,46 @@
+# Defaults shown in the simulator. Every value is either sourced (see `source`) or
+# explicitly marked as an assumption. Change them here, rebuild, and the page picks them up.
+window:
+  start_year: 2001          # first historical year used for resampling
+  end_year: 2025            # last complete historical year
+simulation:
+  start_year: 2027          # first simulated calendar year (drives SALT-cap schedule)
+  futures: 1000
+  block_years: 5            # length of consecutive-history blocks in the bootstrap
+defaults:
+  years: 25
+  down_pct: 20
+  closing_pct:   {value: 3.0,  kind: assumption, note: "Round-number buyer closing costs"}
+  pmi_pct:       {value: 0.5,  kind: assumption, note: "Annual PMI as % of original loan"}
+  maint_pct:     {value: 1.0,  kind: assumption, note: "Rule of thumb; experts quoted by CBC say often higher"}
+  renters_ins:   {value: 15,   kind: assumption, note: "$/month"}
+  stock_pct:     {value: 60,   kind: assumption}
+  fee_pct:       {value: 0.10, kind: assumption}
+  arm_spread:    {value: 0.50, kind: assumption, note: "ARM starting rate = fixed rate minus this"}
+  arm_fixed_years: 5
+  arm_margin:    {value: 2.75, kind: assumption}
+  arm_cap:       {value: 2.0,  kind: assumption, note: "Points per year"}
+  arm_life:      {value: 5.0,  kind: assumption, note: "Lifetime points above start"}
+  refi_drop:     {value: 1.0,  kind: assumption, note: "Refinance when market rate is this many points lower"}
+  refi_cost_pct: {value: 2.0,  kind: assumption, note: "Refinance cost, % of balance, rolled into loan"}
+  mortgage_floor: {value: 2.0, kind: assumption, note: "Lowest simulated market mortgage rate"}
+  commission_pct: {value: 5.44, kind: sourced, source: "Clever Real Estate 2025 survey via HousingWire"}
+  sell_other_pct: {value: 1.0,  kind: assumption, note: "Transfer tax, title, escrow"}
+  marginal_pct: 22
+  ltcg_pct: 15
+  income: 120000
+insurance_pct_of_value:
+  # Freddie Mac Research, "Homeowners insurance costs" (2023 data): national average $4.90 per $1,000.
+  default: 0.49
+  low_states:  {states: [CA, WA, NV, OR, UT, DC], value: 0.25, note: "Freddie Mac: under $2.50 per $1,000 (upper bound used)"}
+  high_states: {states: [LA, OK, KS, NE, MS], value: 0.80, note: "Freddie Mac: over $8 per $1,000 (lower bound used)"}
+property_tax_overrides:
+  CA: {value: 1.0, note: "Prop 13 base rate on purchase price; statewide averages reflect older assessments"}
+assessment_caps:
+  CA: {value: 2.0, note: "Prop 13: assessed value can rise at most 2% a year"}
+  FL: {value: 3.0, note: "Save Our Homes cap; requires the homestead exemption"}
+sources:
+  acs_year: 2024            # ACS 1-year vintage for property-tax rates (bump when a newer one is released)
+  zillow_zhvi_url: "https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+  zillow_zori_url: "https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv"
+  # If a Zillow URL 404s, copy the current link from https://www.zillow.com/research/data/

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rent or buy? 1,000 American futures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Rent or buy? 1,000 American futures</h1>
+  <p class="dek">A U.S. version of the <a href="https://www.cbc.ca/news/business/rent-or-buy-calculator-canada-9.7370950" target="_blank" rel="noopener">CBC News rent-or-buy simulator</a>. Each run follows three households for up to 30 years — one buys with a 30-year fixed mortgage, one buys with an adjustable-rate mortgage, one rents and invests — through 1,000 futures rebuilt from 25 years (2001–2025) of real U.S. home prices, rents, inflation, interest rates and market returns. It shows probabilities, not predictions.</p>
+</header>
+
+<section class="hero" aria-labelledby="verdict">
+  <div class="waffle-box">
+    <canvas id="waffle" width="1000" height="400" role="img" aria-label="Grid of 1,000 simulated futures colored by which household ends with the most money"></canvas>
+    <div class="waffle-cap">Each dot is one simulated future, colored by the household with the highest net worth after selling the home and paying taxes.</div>
+  </div>
+  <div>
+    <p class="verdict" id="verdict" aria-live="polite">Loading data…</p>
+    <div class="odds" id="odds"></div>
+  </div>
+</section>
+
+<div class="main">
+<aside class="controls" aria-label="Simulator settings">
+  <details class="grp" open><summary>Where and what</summary>
+    <div class="fld wide"><label for="metro">Location <small>Home value and rent pre-fill from Zillow; price changes use that area's home price index.</small></label><select id="metro"></select></div>
+    <div class="fld wide" id="histRow"><label for="histSrc">Price history to use <small>Annual home price changes the futures are built from</small></label><select id="histSrc"></select></div>
+    <div class="fld"><label for="price">Home price ($)</label><input type="number" id="price" step="1000" min="50000"></div>
+    <div class="fld"><label for="rent">Rent for a comparable home ($/mo) <small>Use the rent for a home like the one you'd buy</small></label><input type="number" id="rent" step="25" min="200"></div>
+    <div class="fld wide"><label for="years">Years until you sell</label><div class="range-row"><input type="range" id="years" min="3" max="30" step="1"><output id="yearsOut" for="years"></output></div></div>
+  </details>
+
+  <details class="grp" open><summary>Mortgage</summary>
+    <div class="fld"><label for="downPct">Down payment (%)</label><input type="number" id="downPct" step="0.5" min="3" max="100"></div>
+    <div class="fld"><label for="fixedRate">30-year fixed rate (%) <small id="rateNote">Freddie Mac PMMS</small></label><input type="number" id="fixedRate" step="0.01" min="0"></div>
+    <div class="fld"><label for="armRate">ARM starting rate (%) <small>Enter your lender quote</small></label><input type="number" id="armRate" step="0.01" min="0"></div>
+    <div class="fld"><label for="armFixedYears">ARM fixed period (years)</label><select id="armFixedYears"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
+    <div class="fld"><label for="armMargin">ARM margin (%) <small>Added to the index at each reset</small></label><input type="number" id="armMargin" step="0.05" min="0"></div>
+    <div class="fld"><label for="armCap">ARM cap per year (pts)</label><input type="number" id="armCap" step="0.5" min="0"></div>
+    <div class="fld"><label for="armLife">ARM lifetime cap (pts)</label><input type="number" id="armLife" step="0.5" min="0"></div>
+    <label class="chk"><input type="checkbox" id="refiOn"> Fixed-rate owner refinances when rates fall</label>
+    <div class="fld"><label for="refiDrop">Refinance when rates drop by (pts)</label><input type="number" id="refiDrop" step="0.25" min="0.25"></div>
+    <div class="fld"><label for="refiCostPct">Refinance cost (% of balance) <small>Rolled into the loan</small></label><input type="number" id="refiCostPct" step="0.25" min="0"></div>
+    <div class="fld"><label for="closingPct">Buyer closing costs (% of price)</label><input type="number" id="closingPct" step="0.25" min="0"></div>
+    <div class="fld"><label for="pmiPct">PMI (% of loan / yr) <small>Only if down payment &lt; 20%</small></label><input type="number" id="pmiPct" step="0.05" min="0"></div>
+  </details>
+
+  <details class="grp"><summary>Costs of owning</summary>
+    <div class="fld"><label for="propTaxPct">Property tax (% of assessed value)</label><input type="number" id="propTaxPct" step="0.01" min="0"></div>
+    <div class="fld"><label for="assessCap">Assessment growth cap (%/yr) <small>0 = none. CA Prop 13: 2. FL homestead: 3</small></label><input type="number" id="assessCap" step="0.5" min="0"></div>
+    <div class="fld"><label for="insPct">Home insurance (% of price / yr)</label><input type="number" id="insPct" step="0.01" min="0"></div>
+    <div class="fld"><label for="insExtraPct">Insurance growth above inflation (pts/yr)</label><input type="number" id="insExtraPct" step="0.5"></div>
+    <div class="fld"><label for="maintPct">Maintenance (% of value / yr)</label><input type="number" id="maintPct" step="0.1" min="0"></div>
+    <div class="fld"><label for="hoa">HOA or condo fee ($/mo)</label><input type="number" id="hoa" step="10" min="0"></div>
+  </details>
+
+  <details class="grp"><summary>Renting and investing</summary>
+    <div class="fld"><label for="rentersIns">Renter's insurance ($/mo)</label><input type="number" id="rentersIns" step="1" min="0"></div>
+    <div class="fld"><label for="stockPct">Savings invested in stocks (%) <small>The rest goes to 10-year Treasuries</small></label><input type="number" id="stockPct" step="5" min="0" max="100"></div>
+    <div class="fld"><label for="feePct">Fund fees (%/yr)</label><input type="number" id="feePct" step="0.05" min="0"></div>
+  </details>
+
+  <details class="grp"><summary>Taxes and selling</summary>
+    <label class="chk"><input type="checkbox" id="taxesOn"> Include federal income-tax effects</label>
+    <div class="fld"><label for="filing">Filing status</label><select id="filing"><option value="mfj">Married, joint</option><option value="single">Single</option></select></div>
+    <div class="fld"><label for="marginalPct">Federal marginal rate (%)</label><select id="marginalPct"><option>10</option><option>12</option><option selected>22</option><option>24</option><option>32</option><option>35</option><option>37</option></select></div>
+    <div class="fld"><label for="stateTax">State and local income tax you pay ($/yr) <small>Counts toward the SALT cap</small></label><input type="number" id="stateTax" step="500" min="0"></div>
+    <div class="fld"><label for="ltcgPct">Long-term capital gains rate (%)</label><select id="ltcgPct"><option>0</option><option selected>15</option><option>20</option></select></div>
+    <div class="fld"><label for="commissionPct">Agent commissions at sale (%)</label><input type="number" id="commissionPct" step="0.1" min="0"></div>
+    <div class="fld"><label for="sellOtherPct">Other selling costs (%) <small>Transfer tax, title, escrow</small></label><input type="number" id="sellOtherPct" step="0.25" min="0"></div>
+  </details>
+
+  <details class="grp"><summary>Household</summary>
+    <div class="fld"><label for="income">Gross household income ($/yr) <small>Used only for the affordability check</small></label><input type="number" id="income" step="1000" min="0"></div>
+    <div class="fld"><label for="otherDebt">Other monthly debt payments ($)</label><input type="number" id="otherDebt" step="25" min="0"></div>
+  </details>
+
+  <details class="grp"><summary>Simulation</summary>
+    <div class="fld"><label for="block">Years kept together <small>Length of each block of consecutive history</small></label><input type="number" id="block" step="1" min="1" max="10"></div>
+    <div class="fld"><label for="index0">ARM index today (%) <small id="indexNote">1-year Treasury yield</small></label><input type="number" id="index0" step="0.01" min="0"></div>
+  </details>
+
+  <div class="btnrow">
+    <button type="button" id="reshuffle">Draw new futures</button>
+    <button type="button" class="ghost" id="resetBtn">Reset to metro defaults</button>
+  </div>
+  <p class="src-note" id="metroNote"></p>
+</aside>
+
+<div class="results" id="results">
+  <section class="blk" aria-labelledby="h-nw">
+    <div class="toolbar">
+      <h2 id="h-nw">Net worth if you sell</h2>
+      <div class="seg" role="group" aria-label="Dollar basis"><button type="button" data-basis="real" aria-pressed="true">Today's dollars</button><button type="button" data-basis="nominal" aria-pressed="false">Future dollars</button></div>
+    </div>
+    <p class="sub">Median outcome after the final sale, with the range covering the middle 80% of futures (10th to 90th percentile). Owners' figures are home sale proceeds minus selling costs, mortgage balance and tax, plus any savings they invested. The renter's figure is their investment account after capital-gains tax.</p>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="blk" aria-labelledby="h-path">
+    <h2 id="h-path">How wealth builds over time</h2>
+    <p class="sub">Shaded bands show the 10th–90th percentile range for the fixed-rate owner and the renter. Lines are medians.</p>
+    <div class="legend" id="legendNW"></div>
+    <div class="chart-box"><canvas id="chNW" aria-label="Net worth over time chart" role="img"></canvas></div>
+  </section>
+
+  <section class="blk" aria-labelledby="h-cost">
+    <h2 id="h-cost">Monthly housing cost</h2>
+    <p class="sub">Median monthly outlay. Owners pay principal and interest, PMI, property tax, insurance, maintenance and HOA, minus any federal tax savings. Whichever household pays less invests the difference each month, so all three spend the same amount on housing plus saving.</p>
+    <div class="chart-box short"><canvas id="chCost" aria-label="Monthly cost over time chart" role="img"></canvas></div>
+    <p class="callout" id="crossNote"></p>
+  </section>
+
+  <section class="blk" aria-labelledby="h-sunk">
+    <h2 id="h-sunk">Money you don't get back</h2>
+    <p class="sub">Cumulative median spending that builds no wealth: rent for the renter; interest, PMI, property tax, insurance, maintenance, HOA, closing and selling costs for owners (net of tax savings). Mortgage principal is excluded because it becomes home equity.</p>
+    <div class="chart-box short"><canvas id="chSunk" aria-label="Cumulative unrecoverable cost chart" role="img"></canvas></div>
+  </section>
+
+  <section class="blk" aria-labelledby="h-afford">
+    <h2 id="h-afford">Can you buy it? Year-one numbers</h2>
+    <p class="sub">Fixed-rate purchase at today's settings. Lenders typically look at housing costs relative to gross income and at total debt-to-income (DTI).</p>
+    <div class="two">
+      <div class="tbl-wrap"><table id="tblY1"></table></div>
+      <div class="tbl-wrap"><table id="tblAfford"></table></div>
+    </div>
+  </section>
+
+  <section class="blk" aria-labelledby="h-year">
+    <h2 id="h-year">Year by year (median)</h2>
+    <p class="sub">Medians are taken separately for each column, so rows won't reconcile exactly.</p>
+    <div class="tbl-wrap" style="max-height:420px"><table id="tblYears"></table></div>
+  </section>
+
+  <section class="blk" aria-labelledby="h-hist">
+    <h2 id="h-hist">The 25 years of history behind every future</h2>
+    <p class="sub">Annual changes, 2001–2025, that the simulator resamples. Home prices follow the selected price history; the other series are national.</p>
+    <div class="toolbar"><div class="seg" role="group" aria-label="Historical series" id="histSeg"></div></div>
+    <div class="chart-box short"><canvas id="chHist" aria-label="Historical annual changes chart" role="img"></canvas></div>
+    <p class="callout" id="histNote"></p>
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Show the full data table</summary>
+      <div class="tbl-wrap" style="margin-top:10px;max-height:420px"><table id="tblHist"></table></div>
+    </details>
+  </section>
+
+  <section class="blk method" aria-labelledby="h-method">
+    <h2 id="h-method">How the simulator works</h2>
+    <h3>Three households, one budget</h3>
+    <p>All three start with the same cash: the down payment plus buyer closing costs. The renter invests that cash on day one. Every month, the simulator computes each household's housing outlay; whichever pays less invests the difference in a stock and bond mix. This mirrors the CBC design (savings from cheaper housing are invested), extended both ways: when rent overtakes an owner's payment, the owner invests the gap instead.</p>
+    <h3>1,000 futures from 25 years of history</h3>
+    <p>Each future is built by stringing together blocks of consecutive historical years (five by default) drawn at random from 2001–2025. A sampled year carries all of its values together — that metro's home price change, national rent growth, inflation, S&amp;P 500 and 10-year Treasury returns, and the change in the 1-year Treasury yield — so relationships between them, like the 2008 crash coinciding with falling rates, are preserved. The history window is set in config/assumptions.yaml. Like the CBC tool, the record covers about 25 years, so earlier housing cycles such as the early-1990s decline are not in the sample.</p>
+    <h3>Mortgages</h3>
+    <p>The fixed-rate owner locks today's rate for 30 years and, if enabled, refinances once the simulated market rate is a set number of points lower, rolling the cost into the balance and keeping the remaining term. The market rate moves by the year-to-year changes in Freddie Mac's 30-year average from the sampled history. The ARM owner pays the starting rate for the fixed period, then resets once a year to the index plus the margin, limited by the per-year and lifetime caps and floored at the margin. The index starts at today's 1-year Treasury yield and moves by the same year-to-year changes as the sampled history. Most new U.S. ARMs now reset every six months off SOFR; the 1-year Treasury is used because it has the full 25-year history. PMI is charged when the down payment is under 20% and stops when the balance reaches 78% of the original price, the automatic-termination point under the Homeowners Protection Act of 1998.</p>
+    <h3>Taxes</h3>
+    <p>When enabled, owners get the federal benefit of itemizing only to the extent mortgage interest (on up to $750,000 of debt) plus property and state taxes (under the SALT cap) exceed the standard deduction. The 2026 standard deduction is $32,200 joint or $16,100 single and grows with inflation. The SALT cap follows current law: $40,400 in 2026, rising 1% a year through 2029 and returning to $10,000 in 2030; the high-income phase-down is not modeled. Home sale gains up to $500,000 (joint) or $250,000 (single) are excluded under IRC §121, and investment gains are taxed at your capital-gains rate when everything is sold at the end. Dividend taxes during the holding period, state taxes on gains and depreciation recapture are not modeled.</p>
+    <h3>What it leaves out</h3>
+    <ul>
+      <li>The FHFA all-transactions index tracks repeat sales and refinance appraisals of single-family homes with conforming mortgages. It is smoother than sales-only indexes and can understate swings, and condos can behave differently.</li>
+      <li>Rent growth is the national CPI rent index, the only rent series with a long, consistent history. Local rents can run hotter or cooler, and CPI rent reflects all leases, not just new ones.</li>
+      <li>No refinancing, moving costs, renovations, special assessments, or the value of stability, rent control or the freedom to move.</li>
+      <li>Maintenance is a flat share of home value. Experts quoted by CBC noted real repair costs are often higher, especially when something big fails.</li>
+      <li>Insurance and property tax defaults are statewide averages. Florida, Texas and other storm-prone states often cost far more to insure; use a real quote.</li>
+    </ul>
+    <h3>Defaults that are assumptions, not data</h3>
+    <p>Closing costs, PMI, maintenance, renter's insurance, other selling costs, the ARM starting-rate spread, margin and caps, the refinance trigger and cost, fund fees and the stock-bond split are round-number starting points. Each one is labeled as an assumption in <a href="config/assumptions.yaml">config/assumptions.yaml</a>. Replace them with your own figures.</p>
+  </section>
+
+  <section class="blk method" aria-labelledby="h-src">
+    <h2 id="h-src">Data sources</h2>
+    <ol class="sources" id="sourceList">
+      <li>Home prices: FHFA All-Transactions House Price Index for each metro (FRED series ATNHPIUS…Q), fourth-quarter to fourth-quarter changes. The exact series for each location is shown in the history section and listed in <a href="data/series.lock.json">data/series.lock.json</a>.</li>
+      <li>Rent growth: BLS CPI-U Rent of primary residence, U.S. city average (FRED CUUR0000SEHA), change in annual averages.</li>
+      <li>Inflation: BLS CPI-U all items, not seasonally adjusted (FRED CPIAUCNS), December to December.</li>
+      <li>Stock and bond returns: Aswath Damodaran, NYU Stern, <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html" target="_blank" rel="noopener">Historical Returns on Stocks, Bonds and Bills</a> (S&amp;P 500 with dividends; 10-year Treasury), kept in data/manual/market_returns.csv.</li>
+      <li>Interest rates: Freddie Mac PMMS 30-year fixed (FRED MORTGAGE30US) and the 1-year Treasury constant maturity (FRED GS1 and DGS1), Federal Reserve H.15.</li>
+      <li>Home values and rents: Zillow Research ZHVI and ZORI metro files.</li>
+      <li>Property tax: U.S. Census Bureau, American Community Survey 1-year, aggregate real estate taxes (B25090) ÷ aggregate home value (B25082) by state. California uses the Prop 13 base rate of 1%.</li>
+      <li>Home insurance: <a href="https://www.freddiemac.com/research/insight/homeowners-insurance-costs" target="_blank" rel="noopener">Freddie Mac research</a>, 2023 premiums per $1,000 of home value.</li>
+      <li>Agent commissions: Clever Real Estate 2025 survey, reported by <a href="https://www.housingwire.com/articles/real-estate-agent-commission-rates-nar-settlement-clever/" target="_blank" rel="noopener">HousingWire</a>.</li>
+      <li>Tax parameters: 2026 standard deduction and SALT cap (P.L. 119-21), $750,000 mortgage-interest limit, IRC §121 exclusion.</li>
+      <li>Method: Nael Shiab, CBC News, <a href="https://www.cbc.ca/news/business/rent-or-buy-calculator-canada-9.7370950" target="_blank" rel="noopener">"Is it better to buy or rent?"</a>, October 8, 2026.</li>
+    </ol>
+    <p class="stamp" id="dataStamp"></p>
+    <p class="stamp">Full source list, series ids and retrieval details: <a href="SOURCES.md">SOURCES.md</a>. Formulas: <a href="METHODOLOGY.md">METHODOLOGY.md</a>.</p>
+  </section>
+</div>
+</div>
+</div>
+<footer><div class="wrap">For education only. Past patterns are no guarantee of future results, and this is not financial, tax or legal advice. Check rates, taxes and insurance with a lender, a tax professional and an insurance agent before deciding.</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this simulator or its data pipeline, please cite it as below."
+title: "Rent or buy? 1,000 American futures"
+type: software
+authors:
+  - family-names: "Baig"
+    given-names: "Mirza Athar"
+version: 1.1.0
+date-released: 2026-10-14
+url: "https://MirzaAtharBaig.github.io/rent-or-buy-us/"
+repository-code: "https://github.com/MirzaAtharBaig/rent-or-buy-us"
+license: MIT
+keywords: [housing, rent-vs-buy, monte-carlo, mortgage, FHFA, simulation]
+references:
+  - type: article
+    title: "Is it better to buy or rent? Try our calculator based on 2 decades of historical data"
+    authors:
+      - family-names: Shiab
+        given-names: Nael
+    publisher:
+      name: CBC News
+    date-published: 2026-10-08
+    url: "https://www.cbc.ca/news/business/rent-or-buy-calculator-canada-9.7370950"

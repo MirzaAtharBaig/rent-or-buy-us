@@ -1,0 +1,36 @@
+# One entry per location. Adding a metro = adding an entry here and running the build.
+#
+#   key            stable id used in the URL and data.json
+#   name           label shown in the dropdown
+#   states         state(s) whose ACS effective property-tax rate is averaged
+#   zillow_region  RegionName in Zillow's metro ZHVI/ZORI CSVs
+#   fhfa_match     substrings that must all appear in the FRED series title for the
+#                  FHFA All-Transactions HPI (ATNHPIUSxxxxxQ). The build searches FRED
+#                  and records the resolved series in data/series.lock.json.
+#   fhfa_series    optional explicit FRED id; skips the search. Use it when the search
+#                  is ambiguous. Ids marked "verified" were checked by hand on FRED.
+metros:
+  - {key: national,      name: "United States (national)", states: [US], zillow_region: "United States", fhfa_series: USSTHPI}
+  - {key: atlanta,       name: "Atlanta, GA",        states: [GA], zillow_region: "Atlanta, GA",       fhfa_match: ["Atlanta", "GA"]}
+  - {key: boston,        name: "Boston, MA",         states: [MA], zillow_region: "Boston, MA",        fhfa_match: ["Boston", "MA"]}
+  - {key: charlotte,     name: "Charlotte, NC",      states: [NC], zillow_region: "Charlotte, NC",     fhfa_match: ["Charlotte", "NC"]}
+  - {key: chicago,       name: "Chicago, IL",        states: [IL], zillow_region: "Chicago, IL",       fhfa_match: ["Chicago", "IL"]}
+  - {key: cleveland,     name: "Cleveland, OH",      states: [OH], zillow_region: "Cleveland, OH",     fhfa_match: ["Cleveland", "OH"]}
+  - {key: dallas,        name: "Dallas, TX",         states: [TX], zillow_region: "Dallas, TX",        fhfa_series: ATNHPIUS19124Q}   # verified: Dallas-Plano-Irving (MSAD)
+  - {key: denver,        name: "Denver, CO",         states: [CO], zillow_region: "Denver, CO",        fhfa_match: ["Denver", "CO"]}
+  - {key: detroit,       name: "Detroit, MI",        states: [MI], zillow_region: "Detroit, MI",       fhfa_series: ATNHPIUS19804Q}   # verified: Detroit-Dearborn-Livonia (MSAD)
+  - {key: kansas-city,   name: "Kansas City, MO-KS", states: [MO, KS], zillow_region: "Kansas City, MO", fhfa_series: ATNHPIUS28140Q} # verified
+  - {key: las-vegas,     name: "Las Vegas, NV",      states: [NV], zillow_region: "Las Vegas, NV",     fhfa_match: ["Las Vegas", "NV"]}
+  - {key: lincoln,       name: "Lincoln, NE",        states: [NE], zillow_region: "Lincoln, NE",       fhfa_series: ATNHPIUS30700Q}   # verified
+  - {key: los-angeles,   name: "Los Angeles, CA",    states: [CA], zillow_region: "Los Angeles, CA",   fhfa_match: ["Los Angeles", "CA"]}
+  - {key: miami,         name: "Miami, FL",          states: [FL], zillow_region: "Miami, FL",         fhfa_match: ["Miami", "FL"]}
+  - {key: minneapolis,   name: "Minneapolis, MN",    states: [MN], zillow_region: "Minneapolis, MN",   fhfa_match: ["Minneapolis", "MN"]}
+  - {key: new-york,      name: "New York, NY",       states: [NY], zillow_region: "New York, NY",      fhfa_match: ["New York", "NY"]}
+  - {key: omaha,         name: "Omaha, NE",          states: [NE], zillow_region: "Omaha, NE",         fhfa_series: ATNHPIUS36540Q}   # verified
+  - {key: phoenix,       name: "Phoenix, AZ",        states: [AZ], zillow_region: "Phoenix, AZ",       fhfa_match: ["Phoenix", "AZ"]}
+  - {key: portland,      name: "Portland, OR",       states: [OR], zillow_region: "Portland, OR",      fhfa_match: ["Portland", "OR"]}
+  - {key: san-diego,     name: "San Diego, CA",      states: [CA], zillow_region: "San Diego, CA",     fhfa_match: ["San Diego", "CA"]}
+  - {key: san-francisco, name: "San Francisco, CA",  states: [CA], zillow_region: "San Francisco, CA", fhfa_match: ["San Francisco", "CA"]}
+  - {key: seattle,       name: "Seattle, WA",        states: [WA], zillow_region: "Seattle, WA",       fhfa_series: ATNHPIUS42644Q}   # verified: Seattle-Bellevue-Kent (MSAD)
+  - {key: tampa,         name: "Tampa, FL",          states: [FL], zillow_region: "Tampa, FL",         fhfa_match: ["Tampa", "FL"]}
+  - {key: washington-dc, name: "Washington, DC",     states: [VA, MD], zillow_region: "Washington, DC", fhfa_match: ["Washington", "DC"]}
