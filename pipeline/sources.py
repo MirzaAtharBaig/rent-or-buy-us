@@ -50,6 +50,22 @@ def _get(url: str, params: dict[str, Any] | None = None) -> requests.Response:
     raise AssertionError("unreachable")
 
 
+def _get_json(url: str, params: dict[str, Any] | None = None) -> Any:
+    """GET JSON, retrying successful HTTP responses with an empty or invalid body."""
+    delay = 2.0
+    for attempt in range(1, RETRIES + 1):
+        r = _get(url, params)
+        try:
+            return r.json()
+        except requests.exceptions.JSONDecodeError as exc:
+            if attempt == RETRIES:
+                raise SourceError(f"GET {url} returned invalid JSON after {RETRIES} attempts") from exc
+            log.warning("GET %s returned invalid JSON; retry %d/%d in %.0fs", url, attempt, RETRIES, delay)
+            time.sleep(delay)
+            delay *= 2
+    raise AssertionError("unreachable")
+
+
 @dataclass
 class Cache:
     root: Path
@@ -83,8 +99,7 @@ class Fred:
             if cached is None:
                 raise SourceError(f"--offline but no cached FRED response for {cache_name}")
             return json.loads(cached)
-        r = _get(f"{FRED_BASE}/{endpoint}", {**params, "api_key": self.key, "file_type": "json"})
-        data = r.json()
+        data = _get_json(f"{FRED_BASE}/{endpoint}", {**params, "api_key": self.key, "file_type": "json"})
         if "error_message" in data:
             raise SourceError(f"FRED {endpoint} {params}: {data['error_message']}")
         self.cache.write(json.dumps(data, indent=1), "fred", cache_name)
@@ -139,9 +154,7 @@ def census_state_property_tax(cache: Cache, acs_year: int) -> dict[str, tuple[fl
             params = {"get": "NAME,B25090_001E,B25082_001E", "for": geo}
             if census_key:
                 params["key"] = census_key
-            r = _get(f"{CENSUS_BASE}/{acs_year}/acs/acs1", params)
-            r.raise_for_status()
-            part = r.json()
+            part = _get_json(f"{CENSUS_BASE}/{acs_year}/acs/acs1", params)
             rows.extend(part[1:] if rows else part)
         cached = json.dumps(rows)
         cache.write(cached, "census", name)
