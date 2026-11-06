@@ -134,8 +134,13 @@ def census_state_property_tax(cache: Cache, acs_year: int) -> dict[str, tuple[fl
         if cache.offline:
             raise SourceError(f"--offline but no cached Census response {name}")
         rows: list[list[str]] = []
+        census_key = os.environ.get("CENSUS_API_KEY", "")
         for geo in ("state:*", "us:1"):
-            r = _get(f"{CENSUS_BASE}/{acs_year}/acs/acs1", {"get": "NAME,B25090_001E,B25082_001E", "for": geo})
+            params = {"get": "NAME,B25090_001E,B25082_001E", "for": geo}
+            if census_key:
+                params["key"] = census_key
+            r = _get(f"{CENSUS_BASE}/{acs_year}/acs/acs1", params)
+            r.raise_for_status()
             part = r.json()
             rows.extend(part[1:] if rows else part)
         cached = json.dumps(rows)
