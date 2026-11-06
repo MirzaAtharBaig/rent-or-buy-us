@@ -1,6 +1,7 @@
 import json
 
 import requests
+import pytest
 
 from pipeline import sources
 
@@ -13,6 +14,7 @@ def _response(body: bytes) -> requests.Response:
 
 
 def test_census_retries_invalid_json_response(tmp_path, monkeypatch):
+    monkeypatch.setenv("CENSUS_API_KEY", "test-key")
     header = ["NAME", "B25090_001E", "B25082_001E", "state"]
     state_rows = [[name, "1000", "100000", "00"] for name in sources.STATE_ABBR]
     responses = iter([
@@ -26,3 +28,10 @@ def test_census_retries_invalid_json_response(tmp_path, monkeypatch):
     result = sources.census_state_property_tax(sources.Cache(tmp_path), 2024)
 
     assert result["NE"] == (1000.0, 100000.0)
+
+
+def test_census_requires_api_key(tmp_path, monkeypatch):
+    monkeypatch.delenv("CENSUS_API_KEY", raising=False)
+
+    with pytest.raises(sources.SourceError, match="CENSUS_API_KEY is required"):
+        sources.census_state_property_tax(sources.Cache(tmp_path), 2024)
